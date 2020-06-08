@@ -1,0 +1,118 @@
+{% extends "layout.html" %}
+
+{% block heading %}
+    Bookworm
+{% endblock %}
+
+
+{% block body %}
+<div class="container">
+  <div class="jumbotron">
+  	<div class="book-info">
+  		<div class="row">
+  			<div class="col-md-4 col-lg-3">
+  				<img src="http://covers.openlibrary.org/b/isbn/{{  book.isbn  }}-M.jpg" 
+  				onerror="this.onerror=null;this.src='http://covers.openlibrary.org/b/isbn/074349671X-M.jpg';" alt="...">
+  			</div>
+  			<div class="col-md-8 col-lg-9">
+  				<div class="row">
+  					<h1 class="display-4">{{  book.title }}</h1>
+  				</div>
+  				<div class="row">
+  					<div class="col-lg-6">
+  						<p class="lead">Author: {{  book.author  }}</p>
+					    <p class="lead">Published: {{  book.year  }}</p>
+					    <p class="lead">ISBN-10: {{  book.isbn  }}</p>
+					    <button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#exampleModal">
+						  Leave me a review!
+						</button>
+  					</div>
+  					<div class="col-lg-6">
+  						<hr class="my-4 d-lg-none">
+  						<p>Nº of Ratings: {{  goodstat["work_ratings_count"]  }}</p>
+					    <p>Average Rating: {{  goodstat["average_rating"]  }}</p>
+					    <a href="https://www.goodreads.com/search?q={{  book.isbn  }}" target="_blank"><i class="fab fa-goodreads"></i> Goodreads page</a>
+  					</div>
+  				</div>
+  			</div>
+  		</div>
+  	</div>
+
+  </div> <!-- jumbotron end -->
+
+	
+
+	<!-- Modal -->
+	<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+	  <div class="modal-dialog">
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <h5 class="modal-title" id="exampleModalLabel">Review</h5>
+	        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+	          <span aria-hidden="true">&times;</span>
+	        </button>
+	      </div>
+
+	      <form action="/book/{{  book.isbn  }}" method="post">
+	     	 <div class="modal-body">
+	      		<!-- rating -->
+	      		<div class="form-group">
+	      			<div class="form-check form-check-inline">
+					  <input class="form-check-input" type="radio" name="rating" id="inlineRadio1" value="1">
+					  <label class="form-check-label" for="inlineRadio1">1</label>
+					</div>
+					<div class="form-check form-check-inline">
+					  <input class="form-check-input" type="radio" name="rating" id="inlineRadio2" value="2">
+					  <label class="form-check-label" for="inlineRadio2">2</label>
+					</div>
+					<div class="form-check form-check-inline">
+					  <input class="form-check-input" type="radio" name="rating" id="inlineRadio3" value="3">
+					  <label class="form-check-label" for="inlineRadio3">3</label>
+					</div>
+					<div class="form-check form-check-inline">
+					  <input class="form-check-input" type="radio" name="rating" id="inlineRadio4" value="4">
+					  <label class="form-check-label" for="inlineRadio4">4</label>
+					</div>
+					<div class="form-check form-check-inline">
+					  <input class="form-check-input" type="radio" name="rating" id="inlineRadio5" value="5">
+					  <label class="form-check-label" for="inlineRadio5">5</label>
+					</div>
+	      		</div>
+	      		<!-- comment text area -->
+	      		<div class="form-group">
+	      			<textarea class="form-control" name="comment" id="message-text"></textarea>
+	      		</div>
+	      	
+	      	</div>
+		    <div class="modal-footer">
+		       <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+		       <button type="submit" class="btn btn-primary">Post</button>
+		    </div>
+	      </form>
+	    </div>
+	  </div>
+	</div>
+
+
+	<div class="dropdown-divider"></div>
+	<div id="userReviews" class="pb-3">
+		{% for review in reviews%}
+		<div class="card my-1">
+			<div class="card-header pb-1 pt-2">
+				<div class="row justify-content-between">
+					<div class="col-4 text-left"><a href="/user/{{  review.username  }}">{{  review.username  }}</a></div>
+					<div class="col-4 text-center">Rating: {{  review.rating  }}</div>
+					<div class="col-4 text-right">Date: 2020</div>
+				</div>
+			</div>
+			<div class="card-body pb-1 pt-2">
+				{{  review.comment  }}
+			</div>
+		</div>
+		{% endfor%}
+	</div>
+
+
+</div> <!-- container -->
+
+{% endblock %}

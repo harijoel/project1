@@ -1,0 +1,44 @@
+{% extends "layout.html" %}
+
+{% block heading %}
+    Results for {{  keyword  }}
+{% endblock %}
+
+{% block body %}
+    <div class="container mt-3">
+        <div class="row">
+          {% for result in results%}
+          <div class="result col-6 col-md-4">
+          <div class="card mb-3" style="max-width: 540px;">
+            <div class="row no-gutters">
+              <div class="col-lg-4">
+                <a href="/book/{{  result.isbn  }}">
+                  <img src="http://covers.openlibrary.org/b/isbn/{{  result.isbn  }}-M.jpg" class="card-img" alt="...">
+                </a>
+              </div>
+              <div class="col-lg-8">
+                <div class="card-body">
+                  <a href="/book/{{  result.isbn  }}"><h5 class="card-title">{{ result.title }}</h5></a>
+                  <h6 class="card-subtitle mb-2 text-muted pl-2">{{  result.author  }}</h6>
+                  <h6 class="card-subtitle mb-2 text-muted pl-2">{{  result.year  }}</h6>
+                </div>
+              </div>
+            </div>
+            <div class="card-footer">
+              <p class="card-text text-right"><small class="text-muted">{{  result.isbn  }}</small></p>
+            </div>
+          </div> 
+          
+          </div>  <!-- end card div -->
+          {% else %}
+          <div>
+            <h1>No results!</h1>
+            <h3>Try using a different word.</h3>
+          </div>
+          {% endfor %}
+        </div>
+    </div>
+    
+    
+
+{% endblock %}

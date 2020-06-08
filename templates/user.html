@@ -1,0 +1,25 @@
+{% extends "layout.html" %}
+
+{% block heading %}
+    Bookworm: Account profile
+{% endblock %}
+
+
+{% block body %}
+<div class="container">
+	{% if session.user_name == username %}
+		<h1>Your reviewed books</h1>
+	{% else %}
+		<h1>Books that {{  username  }} has reviewed</h1>
+	{% endif %}
+	<div class="list-group">
+	  {% for userReview in userReviews%}
+	  <a href="/book/{{  userReview.isbn  }}" class="list-group-item list-group-item-action">{{  userReview.title  }}</a>
+	  {% else %}
+	  <h3>No book review yet!</h3>
+	  {% endfor%}
+	</div>
+</div>
+    
+
+{% endblock %}

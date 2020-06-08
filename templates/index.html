@@ -1,0 +1,49 @@
+{% extends "layout.html" %}
+
+{% block heading %}
+    Bookworm
+{% endblock %}
+
+
+{% block body %}
+<div class="container">
+  <div class="jumbotron">
+    <h1 class="display-4">be a Bookworm!</h1>
+    <p class="lead">Discover thousands of books online!</p>
+    <hr class="my-4">
+    <p>Find books by typing in their title, author or isbn in the search.</p>
+    <a class="btn btn-primary btn-lg" href="/lucky" role="button">I'm feeling lucky</a>
+  </div>
+
+  <!-- Most recent reviews -->
+  <div class="row">
+    {% for result in results%}
+    <div class="result col-6 col-md-4">
+    <div class="card mb-3" style="max-width: 540px;">
+      <div class="row no-gutters">
+        <div class="col-lg-4">
+          <a href="/book/{{  result.isbn  }}">
+            <img src="http://covers.openlibrary.org/b/isbn/{{  result.isbn  }}-M.jpg" class="card-img" alt="...">
+          </a>
+        </div>
+        <div class="col-lg-8">
+          <div class="card-body">
+            <a href="/book/{{  result.isbn  }}"><h5 class="card-title">{{ result.title }}</h5></a>
+            <h6 class="card-subtitle mb-2 text-muted pl-2">{{  result.author  }}</h6>
+            <h6 class="card-subtitle mb-2 text-muted pl-2">{{  result.year  }}</h6>
+          </div>
+        </div>
+      </div>
+      <div class="card-footer">
+        <p class="card-text text-right"><small class="text-muted">{{  result.isbn  }}</small></p>
+      </div>
+    </div> 
+    
+    </div>  <!-- end card div -->
+    {% endfor%}
+  </div>  <!-- end row div --
+
+</div>
+    
+
+{% endblock %}
