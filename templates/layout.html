@@ -9,6 +9,40 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
     <script src="https://kit.fontawesome.com/2c1e2a8786.js" crossorigin="anonymous"></script>
     <title>{% block heading %}{% endblock %}</title>
+    <link rel="icon" href="https://d1ujqdpfgkvqfi.cloudfront.net/favicon-generator/htdocs/favicons/2015-01-27/ff3f438d79c7806ab39c41b6776ad55a.ico">
+    <script>
+      function default_img(img) {
+        if (img.height == img.width) {
+          img.src='http://covers.openlibrary.org/b/isbn/0439443822-M.jpg'
+        };
+      };
+    </script>
+    <style>
+      .star-rating {
+        direction: rtl;
+        display: inline-block;
+        padding: 20px
+    }
+
+    .star-rating input[type=radio] {
+        display: none
+    }
+
+    .star-rating label {
+        color: #bbb;
+        font-size: 18px;
+        padding: 0;
+        cursor: pointer;
+        -webkit-transition: all .3s ease-in-out;
+        transition: all .3s ease-in-out
+    }
+
+    .star-rating label:hover,
+    .star-rating label:hover ~ label,
+    .star-rating input[type=radio]:checked ~ label {
+        color: #f2b600
+    }
+    </style>
   </head>
   <body>
   
@@ -22,7 +56,8 @@
         <ul class="navbar-nav mr-auto">
             <form action="{{ url_for('search') }}" method="get" class="form-inline my-2 my-lg-0">
                 <input name="keyword" class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
-                <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+                <button class="btn btn-primary my-2 my-sm-0" type="submit">Search</button>
+                <a class="btn btn-outline-success my-2 my-sm-0 ml-2" href="/lucky" role="button">Lucky</a>
             </form>
         </ul>
         <ul class="navbar-nav ml-auto">
@@ -56,7 +91,12 @@
     {% with messages = get_flashed_messages() %}
       {% if messages %}
         {% for msg in messages %}
-          <h1>{{msg}}</h1>
+          <div class="alert alert-warning alert-dismissible fade show" role="alert">
+            <strong>Holy guacamole!</strong> {{msg}}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
         {% endfor %}
       {% endif %}
     {% endwith %}
@@ -72,5 +112,26 @@
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
+    
+    <!-- custom script -->
+
+    <script>
+      // document.addEventListener('DOMContentLoaded', () => {
+
+      //   const images = document.querySelectorAll("img");
+      //   images.forEach(img => {
+      //     if (img.height <= 116) {
+      //       img.src = "https://s3-us-west-2.amazonaws.com/s.cdpn.io/387928/book%20placeholder.png";
+      //     };
+      //   });
+
+      // });
+      // function default_img(img) {
+      //   if (img.height < 120) {
+      //     img.src='http://covers.openlibrary.org/b/isbn/0439443822-M.jpg'
+      //   };
+      // };
+    </script>
+
   </body>
 </html>

@@ -7,17 +7,31 @@
 
 {% block body %}
 <div class="container">
-	{% if session.user_name == username %}
-		<h1>Your reviewed books</h1>
-	{% else %}
-		<h1>Books that {{  username  }} has reviewed</h1>
-	{% endif %}
+	<div class="py-4">
+		{% if session.user_name == username %}
+			<h1>Your reviewed books</h1>
+		{% else %}
+			<h1>Books that <span class="text-primary">{{  username  }}</span> has reviewed</h1>
+		{% endif %}
+	</div>
+	
 	<div class="list-group">
-	  {% for userReview in userReviews%}
-	  <a href="/book/{{  userReview.isbn  }}" class="list-group-item list-group-item-action">{{  userReview.title  }}</a>
-	  {% else %}
-	  <h3>No book review yet!</h3>
-	  {% endfor%}
+	  	{% for userReview in userReviews%}
+			<a href="/book/{{  userReview.isbn  }}" class="list-group-item list-group-item-action d-flex justify-content-between">
+				<div>{{  userReview.title  }}</div>
+				<div>
+					{% for i in range(1, 6) %}
+						{% if i <= userReview.rating %}
+							<i class="fas fa-star" style="color: orange;"></i>
+						{% else %}
+							<i class="fas fa-star"></i>
+						{% endif %}
+					{% endfor %}
+				</div>
+			</a> 
+	  	{% else %}
+	  		<h3>No book review yet!</h3>
+	  	{% endfor%}
 	</div>
 </div>
     

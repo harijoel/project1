@@ -6,6 +6,8 @@
 
 {% block body %}
     <div class="container mt-3">
+        <h4 class="text-muted">{{  numres  }} results</h4>
+        <br>
         <div class="row">
           {% for result in results%}
           <div class="result col-6 col-md-4">
@@ -13,7 +15,7 @@
             <div class="row no-gutters">
               <div class="col-lg-4">
                 <a href="/book/{{  result.isbn  }}">
-                  <img src="http://covers.openlibrary.org/b/isbn/{{  result.isbn  }}-M.jpg" class="card-img" alt="...">
+                <img src="http://covers.openlibrary.org/b/isbn/{{  result.isbn  }}-M.jpg" class="card-img" alt="..." onload=default_img(this)>
                 </a>
               </div>
               <div class="col-lg-8">

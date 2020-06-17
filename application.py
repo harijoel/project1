@@ -10,7 +10,7 @@ import requests
 
 app = Flask(__name__)
 app.secret_key = 'hello'
-app.permanent_session_lifetime = timedelta(minutes=5)
+#app.permanent_session_lifetime = timedelta(minutes=5) ##############
 # Check for environment variable
 if not os.getenv("DATABASE_URL"):
     raise RuntimeError("DATABASE_URL is not set")
@@ -27,7 +27,8 @@ db = scoped_session(sessionmaker(bind=engine))
 
 @app.route("/")
 def index():
-    results = db.execute("SELECT isbn, title, author, year FROM books JOIN reviews ON reviews.book_id = books.id ORDER BY reviews.id DESC LIMIT 81").fetchall()
+    #results = db.execute("SELECT isbn, title, author, year FROM books JOIN reviews ON reviews.book_id = books.id ORDER BY reviews.id DESC LIMIT 81").fetchall()
+    results = db.execute("SELECT DISTINCT isbn, title, author, year FROM (SELECT isbn, title, author, year FROM books JOIN reviews ON reviews.book_id = books.id ORDER BY reviews.id DESC) AS FOO LIMIT 81").fetchall()
     return render_template("index.html", results = results)
 
 @app.route("/search", methods=["GET"])
@@ -35,15 +36,29 @@ def index():
 def search():
     #Get form information
     keyword = str(request.args.get("keyword"))
-    query = '%' + keyword + '%'
 
-    #List results
-    results = db.execute("SELECT * FROM books WHERE\
-        UPPER(title) LIKE UPPER(:query) OR \
-        isbn LIKE :query OR \
-        UPPER(author) LIKE UPPER(:query)", {"query": query}).fetchall()
-    flash('TEST')
-    return render_template("search.html", results = results, keyword = keyword)
+    keywords = keyword.split()
+    myquery = []
+    d = {}
+    for word in keywords:
+        command = f"( UPPER(title) LIKE UPPER(:{word}) OR \
+        isbn LIKE :{word} OR \
+        UPPER(author) LIKE UPPER(:{word}) )"
+        myquery.append(command)
+        d[word] = '%' + word + '%'
+    commands = " AND ".join(myquery)
+
+    # query = '%' + keyword + '%'
+
+    # #List results
+    # results = db.execute("SELECT * FROM books WHERE\
+    #     UPPER(title) LIKE UPPER(:query) OR \
+    #     isbn LIKE :query OR \
+    #     UPPER(author) LIKE UPPER(:query)", {"query": query}).fetchall()
+
+    results = db.execute("SELECT * FROM books WHERE " + commands, d).fetchall()
+    numres = str(len(results))
+    return render_template("search.html", results = results, keyword = keyword, numres = numres)
 
 
 @app.route("/lucky", methods=["GET"])
@@ -51,16 +66,13 @@ def search():
 def lucky():
     randomBook = db.execute("SELECT isbn FROM books ORDER BY RANDOM() LIMIT 1").fetchone()
     randomBook_isbn = str(randomBook.isbn)
-    flash('TEST')
+    flash('Abra kadabra!')
     return redirect("/book/" + randomBook_isbn)
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
-    #Forget all sessions
-    session.clear()
 
     if request.method == "POST":
-        #session.clear()
         #Collect all form data
         username = request.form.get("username")
         password = request.form.get("password")
@@ -70,37 +82,49 @@ def register():
         #Username was submitted
         if not username:
             flash('You must provide a username', 'warning')
+            return render_template("register.html")
             return redirect("/register")
+
+        #Only letters and numbers
+        if not username.isalnum():
+            flash("Username can only contain letters and numbers", "warning")
+            return render_template("register.html")
 
         #Username length fits
         if not (3 <= len(username) <= 12):
             flash("Username lenght must be between 3 and 12", "warning")
+            return render_template("register.html")
             return redirect("/register")
 
         #Username is not taken
         if db.execute("SELECT * FROM users WHERE username = :username", {"username": username}).rowcount:
             flash("This username is not available", "warning")
+            return render_template("register.html")
             return redirect("/register")
 
         #Password was submitted
         if not password:
             flash("You must provide a password", "warning")
+            return render_template("register.html")
             return redirect("/register")
 
         #Password was confirmed
         if password != confirmation:
             flash("Password does not match", "warning")
+            return render_template("register.html")
             return redirect("/register")
 
         #Password length fits
         if not (3 <= len(password) <= 12):
             flash("Password lenght must be between 3 and 12", "warning")
+            return render_template("register.html")
             return redirect("/register")
 
         #Terms were accepted
         if not terms:
             flash("You must agree with our terms and conditions", "warning")
             return render_template("error.html", message = "terms")
+            return render_template("register.html")
             return redirect("/register")
 
         #Create user in DB and save
@@ -112,16 +136,15 @@ def register():
         return redirect("/login")
 
     else:
+        if "user_id" in session:
+            return redirect("/")
         return render_template("register.html")
 
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
-    #Forget all sessions
-    session.clear()
 
     if request.method == "POST":
-        #session.clear()
         #Collect all form data
         username = request.form.get("username")
         password = request.form.get("password")
@@ -129,15 +152,18 @@ def login():
         #Username and password were submitted
         if not username:
             flash("You didn't provide a username", "warning")
+            return render_template("login.html")
             return redirect("/login")
         if not password:
             flash("You didn't provide a password", "warning")
+            return render_template("login.html")
             return redirect("/login")
 
         #Username exists in DB and matches password
         user = db.execute("SELECT * FROM users WHERE username = :username", {"username": username}).fetchone()
         if (not user) or user.password != password:
             flash("Password or username are incorrect", "warning")
+            return render_template("login.html")
             return redirect("/login")
 
         #Create new session for logged in user
@@ -148,6 +174,8 @@ def login():
         return redirect("/")
 
     else:
+        if "user_id" in session:
+            return redirect("/")
         return render_template("login.html")
 
 
@@ -169,10 +197,20 @@ def book(isbn):
 
     if request.method == "POST":
 
-        #Collect form data
-        rating = int(request.form.get("rating"))
+        #Collect form data (rating & comment)
+        try:
+            rating = int(request.form.get("rating"))
+        except:
+            return render_template("error.html", message = "Invalid rating")
         comment = request.form.get("comment")
         onlineUser = session["user_id"]
+
+        if not rating:
+            flash("Must submit a rating", "warning")
+            return redirect("/book/" + isbn)
+        if not comment:
+            flash("Must submit a comment", "warning")
+            return redirect("/book/" + isbn)
 
         #Review was already submitted, delete old one
         if db.execute("SELECT * FROM reviews WHERE user_id = :user_id AND book_id = :book_id", {"user_id": onlineUser, "book_id": book.id}).rowcount:
@@ -219,7 +257,7 @@ def user(username):
 
     #Fetch books where user commented
     onlineUser = int(target.id)
-    userReviews = db.execute("SELECT isbn, title FROM books JOIN reviews ON reviews.book_id = books.id WHERE user_id = :onlineUser ORDER BY reviews.id DESC", {"onlineUser": onlineUser}).fetchall()
+    userReviews = db.execute("SELECT isbn, title, rating FROM books JOIN reviews ON reviews.book_id = books.id WHERE user_id = :onlineUser ORDER BY reviews.id DESC", {"onlineUser": onlineUser}).fetchall()
     return render_template("user.html", userReviews = userReviews, username = target.username)
 
 

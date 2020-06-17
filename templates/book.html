@@ -10,30 +10,49 @@
   <div class="jumbotron">
   	<div class="book-info">
   		<div class="row">
-  			<div class="col-md-4 col-lg-3">
+  			<div class="col-md-4 col-lg-3 text-center">
   				<img src="http://covers.openlibrary.org/b/isbn/{{  book.isbn  }}-M.jpg" 
-  				onerror="this.onerror=null;this.src='http://covers.openlibrary.org/b/isbn/074349671X-M.jpg';" alt="...">
+  				onload=default_img(this) alt="...">
   			</div>
   			<div class="col-md-8 col-lg-9">
-  				<div class="row">
-  					<h1 class="display-4">{{  book.title }}</h1>
-  				</div>
-  				<div class="row">
+				<h1 class="display-4">{{  book.title }}</h1>
+				<h4>by <span><a href="/search?keyword={{  book.author  }}" class="text-dark">{{  book.author  }}</a></span>, {{  book.year  }}</h4>		    
+				<p class="lead"><a href="/api/{{  book.isbn  }}" class="text-info">ISBN-10: {{  book.isbn  }}</a></p>
+					    
+  					
   					<div class="col-lg-6">
-  						<p class="lead">Author: {{  book.author  }}</p>
-					    <p class="lead">Published: {{  book.year  }}</p>
-					    <p class="lead">ISBN-10: {{  book.isbn  }}</p>
-					    <button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#exampleModal">
-						  Leave me a review!
-						</button>
+						<p>{{  goodstat["average_rating"]  }} <i class="fas fa-star"></i>
+						<a href="https://www.goodreads.com/search?q={{  book.isbn  }}" target="_blank"><i class="fab fa-goodreads"></i> goodreads</a> 
+						{{  goodstat["work_ratings_count"]  }} reviews</p>
   					</div>
-  					<div class="col-lg-6">
-  						<hr class="my-4 d-lg-none">
-  						<p>Nº of Ratings: {{  goodstat["work_ratings_count"]  }}</p>
-					    <p>Average Rating: {{  goodstat["average_rating"]  }}</p>
-					    <a href="https://www.goodreads.com/search?q={{  book.isbn  }}" target="_blank"><i class="fab fa-goodreads"></i> Goodreads page</a>
-  					</div>
-  				</div>
+				  
+					<button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#exampleModal">
+						Leave me a review!
+					</button>
+
+					<div class="star-rating">
+						<input id="star-5" type="radio" name="rating" value="star-5" />
+						<label for="star-5" title="5 stars">
+						  <i class="active fa fa-star" aria-hidden="true"></i>
+						</label>
+						<input id="star-4" type="radio" name="rating" value="star-4" />
+						<label for="star-4" title="4 stars">
+						  <i class="active fa fa-star" aria-hidden="true"></i>
+						</label>
+						<input id="star-3" type="radio" name="rating" value="star-3" />
+						<label for="star-3" title="3 stars">
+						  <i class="active fa fa-star" aria-hidden="true"></i>
+						</label>
+						<input id="star-2" type="radio" name="rating" value="star-2" />
+						<label for="star-2" title="2 stars">
+						  <i class="active fa fa-star" aria-hidden="true"></i>
+						</label>
+						<input id="star-1" type="radio" name="rating" value="star-1" />
+						<label for="star-1" title="1 star">
+						  <i class="active fa fa-star" aria-hidden="true"></i>
+						</label>
+					  </div>
+
   			</div>
   		</div>
   	</div>
@@ -101,7 +120,15 @@
 			<div class="card-header pb-1 pt-2">
 				<div class="row justify-content-between">
 					<div class="col-4 text-left"><a href="/user/{{  review.username  }}">{{  review.username  }}</a></div>
-					<div class="col-4 text-center">Rating: {{  review.rating  }}</div>
+					<div class="col-4 text-center">
+						{% for i in range(1, 6) %}
+							{% if i <= review.rating %}
+								<i class="fas fa-star" style="color: orange;"></i>
+							{% else %}
+								<i class="fas fa-star"></i>
+							{% endif %}
+						{% endfor %}
+					</div>
 					<div class="col-4 text-right">Date: 2020</div>
 				</div>
 			</div>
