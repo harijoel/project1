@@ -15,16 +15,15 @@
   				onload=default_img(this) alt="...">
   			</div>
   			<div class="col-md-8 col-lg-9">
-				<h1 class="display-4">{{  book.title }}</h1>
-				<h4>by <span><a href="/search?keyword={{  book.author  }}" class="text-dark">{{  book.author  }}</a></span>, {{  book.year  }}</h4>		    
-				<p class="lead"><a href="/api/{{  book.isbn  }}" class="text-info">ISBN-10: {{  book.isbn  }}</a></p>
+				<h1>{{  book.title }}</h1>
+				<h4 class="text-secondary">by <span><a href="/search?keyword={{  book.author  }}">{{  book.author  }}</a></span>, {{  book.year  }}</h4>		    
+				<a href="/api/{{  book.isbn  }}" class="text-info">ISBN-10: {{  book.isbn  }}</a>
 					    
+  						
+				<p>{{  goodstat["average_rating"]  }} <i class="fas fa-star"></i>
+				<a href="https://www.goodreads.com/search?q={{  book.isbn  }}" target="_blank">(<i class="fab fa-goodreads"></i> good<b>reads</b>)</a> 
+				{{  goodstat["work_ratings_count"]  }} reviews</p>
   					
-  					<div class="col-lg-6">
-						<p>{{  goodstat["average_rating"]  }} <i class="fas fa-star"></i>
-						<a href="https://www.goodreads.com/search?q={{  book.isbn  }}" target="_blank">(<i class="fab fa-goodreads"></i> good<b>reads</b>)</a> 
-						{{  goodstat["work_ratings_count"]  }} reviews</p>
-  					</div>
 				  
 
 					<form action="/book/{{  book.isbn  }}" method="post">
@@ -61,7 +60,6 @@
 						</div>
 
 					</form>
-					{{  userrev.rating  }}
 
   			</div>
   		</div>
