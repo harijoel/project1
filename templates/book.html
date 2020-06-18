@@ -15,7 +15,7 @@
   				onload=default_img(this) alt="...">
   			</div>
   			<div class="col-md-8 col-lg-9">
-				<h1>{{  book.title }}</h1>
+				<h1><i class="fas fa-book-open"></i> {{  book.title }}</h1>
 				<h4 class="text-secondary">by <span><a href="/search?keyword={{  book.author  }}" class="text-secondary font-italic">{{  book.author  }}</a></span>, {{  book.year  }}</h4>		    
 				<a href="/api/{{  book.isbn  }}" class="text-muted">ISBN: {{  book.isbn  }}</a>
 					    
@@ -58,7 +58,7 @@
 									<div class="modal-body">
 										<!-- comment text area -->
 										<div class="form-group">
-											<textarea class="form-control" name="comment" id="message-text"></textarea>
+											<textarea class="form-control" name="comment" id="message-text" placeholder="Leave a review!"></textarea>
 										</div>
 									</div>
 									<div class="modal-footer">
@@ -88,8 +88,8 @@
 		<div class="card my-1">
 			<div class="card-header pb-1 pt-2">
 				<div class="row justify-content-between">
-					<div class="col-4 text-left"><a href="/user/{{  review.username  }}">{{  review.username  }}</a></div>
-					<div class="col-4 text-center">
+					<div class="col text-left"><a href="/user/{{  review.username  }}">{{  review.username  }}</a></div>
+					<div class="col text-right">
 						{% for i in range(1, 6) %}
 							{% if i <= review.rating %}
 								<i class="fas fa-star" style="color: orange;"></i>
@@ -98,7 +98,7 @@
 							{% endif %}
 						{% endfor %}
 					</div>
-					<div class="col-4 text-right">Date: 2020</div>
+					<!-- <div class="col text-right">Date: 2020</div> -->
 				</div>
 			</div>
 			<div class="card-body pb-1 pt-2">
