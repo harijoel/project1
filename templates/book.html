@@ -16,13 +16,23 @@
   			</div>
   			<div class="col-md-8 col-lg-9">
 				<h1>{{  book.title }}</h1>
-				<h4 class="text-secondary">by <span><a href="/search?keyword={{  book.author  }}">{{  book.author  }}</a></span>, {{  book.year  }}</h4>		    
-				<a href="/api/{{  book.isbn  }}" class="text-info">ISBN-10: {{  book.isbn  }}</a>
+				<h4 class="text-secondary">by <span><a href="/search?keyword={{  book.author  }}" class="text-secondary font-italic">{{  book.author  }}</a></span>, {{  book.year  }}</h4>		    
+				<a href="/api/{{  book.isbn  }}" class="text-muted">ISBN: {{  book.isbn  }}</a>
 					    
-  						
-				<p>{{  goodstat["average_rating"]  }} <i class="fas fa-star"></i>
-				<a href="https://www.goodreads.com/search?q={{  book.isbn  }}" target="_blank">(<i class="fab fa-goodreads"></i> good<b>reads</b>)</a> 
-				{{  goodstat["work_ratings_count"]  }} reviews</p>
+  				<div class="both-ratings pt-3">
+						<!-- goodreads stat ratings -->
+					<span class="d-inline-block">{{  goodstat["average_rating"]  }} <i class="fas fa-star"></i>
+					<a href="https://www.goodreads.com/search?q={{  book.isbn  }}" target="_blank" class="text-dark">
+						<small>(<i class="fab fa-goodreads"></i> good<b>reads</b>)</small></a> 
+					{{  goodstat["work_ratings_count"]  }} reviews</span>
+					<span class="border border-dark border-0 border-right"> | </span>
+						<!-- bookworm stat ratings -->
+					<span class="d-inline-block">{{  bwstat["average_score"]  }} <i class="fas fa-star"></i>
+					<a href="/api/{{  book.isbn  }}" target="_blank" class="text-dark">
+						<small>(<i class="fas fa-bug"></i> book<b>worm</b>)</small></a> 
+					{{  bwstat["review_count"]  }} reviews</span>
+				</div>
+				
   					
 				  
 
@@ -60,7 +70,7 @@
 						</div>
 
 					</form>
-
+					
   			</div>
   		</div>
   	</div>

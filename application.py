@@ -27,9 +27,16 @@ db = scoped_session(sessionmaker(bind=engine))
 
 @app.route("/")
 def index():
-    #results = db.execute("SELECT isbn, title, author, year FROM books JOIN reviews ON reviews.book_id = books.id ORDER BY reviews.id DESC LIMIT 81").fetchall()
-    results = db.execute("SELECT DISTINCT isbn, title, author, year FROM (SELECT isbn, title, author, year FROM books JOIN reviews ON reviews.book_id = books.id ORDER BY reviews.id DESC) AS FOO LIMIT 81").fetchall()
-    return render_template("index.html", results = results)
+    #results = db.execute("SELECT DISTINCT isbn, title, author, year FROM books JOIN reviews ON reviews.book_id = books.id ORDER BY reviews.id DESC LIMIT 81").fetchall()
+    #results = db.execute("SELECT DISTINCT isbn, title, author, year FROM (SELECT isbn, title, author, year FROM books JOIN reviews ON reviews.book_id = books.id ORDER BY reviews.id DESC) AS FOO LIMIT 81").fetchall()
+    results = db.execute("SELECT isbn, title, author, year FROM books JOIN reviews ON reviews.book_id = books.id ORDER BY reviews.id DESC").fetchall()
+    bumped = []
+    seen = []
+    for result in results:
+        if result.isbn not in seen:
+            bumped.append(result)
+            seen.append(result.isbn)
+    return render_template("index.html", results = bumped)
 
 @app.route("/search", methods=["GET"])
 @login_required
@@ -82,49 +89,41 @@ def register():
         #Username was submitted
         if not username:
             flash('You must provide a username', 'warning')
-            return render_template("register.html")
             return redirect("/register")
 
         #Only letters and numbers
         if not username.isalnum():
             flash("Username can only contain letters and numbers", "warning")
-            return render_template("register.html")
+            return redirect("/register")
 
         #Username length fits
         if not (3 <= len(username) <= 12):
             flash("Username lenght must be between 3 and 12", "warning")
-            return render_template("register.html")
             return redirect("/register")
 
         #Username is not taken
         if db.execute("SELECT * FROM users WHERE username = :username", {"username": username}).rowcount:
             flash("This username is not available", "warning")
-            return render_template("register.html")
             return redirect("/register")
 
         #Password was submitted
         if not password:
             flash("You must provide a password", "warning")
-            return render_template("register.html")
             return redirect("/register")
 
         #Password was confirmed
         if password != confirmation:
             flash("Password does not match", "warning")
-            return render_template("register.html")
             return redirect("/register")
 
         #Password length fits
         if not (3 <= len(password) <= 12):
             flash("Password lenght must be between 3 and 12", "warning")
-            return render_template("register.html")
             return redirect("/register")
 
         #Terms were accepted
         if not terms:
             flash("You must agree with our terms and conditions", "warning")
-            return render_template("error.html", message = "terms")
-            return render_template("register.html")
             return redirect("/register")
 
         #Create user in DB and save
@@ -152,18 +151,15 @@ def login():
         #Username and password were submitted
         if not username:
             flash("You didn't provide a username", "warning")
-            return render_template("login.html")
             return redirect("/login")
         if not password:
             flash("You didn't provide a password", "warning")
-            return render_template("login.html")
             return redirect("/login")
 
         #Username exists in DB and matches password
         user = db.execute("SELECT * FROM users WHERE username = :username", {"username": username}).fetchone()
         if (not user) or user.password != password:
             flash("Password or username are incorrect", "warning")
-            return render_template("login.html")
             return redirect("/login")
 
         #Create new session for logged in user
@@ -243,7 +239,33 @@ def book(isbn):
     data = res.json()
     goodstat = data['books'][0]
 
-    return render_template("book.html", book = book, reviews = reviews, goodstat = goodstat, userrev = userrev)
+    #BOOKWORM REVIEW
+    row = db.execute("SELECT title, author, year, isbn, \
+                    COUNT(reviews.id) as review_count, \
+                    AVG(reviews.rating) as average_score \
+                    FROM books \
+                    INNER JOIN reviews \
+                    ON books.id = reviews.book_id \
+                    WHERE isbn = :isbn \
+                    GROUP BY title, author, year, isbn",
+                    {"isbn": isbn})
+
+    # Error checking
+    if row.rowcount != 1:
+        result = {"average_score": "n/a", "review_count": 0}
+        return render_template("book.html", book = book, reviews = reviews, goodstat = goodstat, userrev = userrev, bwstat = result)
+
+    # Fetch result from RowProxy    
+    tmp = row.fetchone()
+
+    # Convert to dict
+    result = dict(tmp.items())
+
+    # Round Avg Score to 2 decimal. This returns a string which does not meet the requirement.
+    # https://floating-point-gui.de/languages/python/
+    result['average_score'] = float('%.2f'%(result['average_score']))
+
+    return render_template("book.html", book = book, reviews = reviews, goodstat = goodstat, userrev = userrev, bwstat = result)
 
 
 @app.route("/user/<username>", methods=["GET"])
