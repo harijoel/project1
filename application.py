@@ -228,13 +228,12 @@ def book(isbn):
         return redirect("/book/" + isbn)
 
     #Fetch comments form database for display
-    # reviews = db.execute("SELECT comment, rating, username, \
-                #     to_char(time, 'DD Mon YY - HH24:MI:SS') as time \
-                #     FROM reviews JOIN users ON users.id = reviews.user_id \
-                #     WHERE book_id = :book_id", {"book_id": book.id}).fetchall()
     reviews = db.execute("SELECT comment, rating, username \
                           FROM reviews JOIN users ON users.id = reviews.user_id \
                           WHERE book_id = :book_id ORDER BY reviews.id DESC", {"book_id": book.id}).fetchall()
+
+    #Fetch user last review
+    userrev = db.execute("SELECT rating FROM reviews WHERE user_id = :user_id AND book_id = :book_id", {"user_id": session["user_id"], "book_id": book.id}).fetchone()
 
     #GOODREADS REVIEW
     key = os.getenv("GOODREADS_KEY")
@@ -244,7 +243,7 @@ def book(isbn):
     data = res.json()
     goodstat = data['books'][0]
 
-    return render_template("book.html", book = book, reviews = reviews, goodstat = goodstat)
+    return render_template("book.html", book = book, reviews = reviews, goodstat = goodstat, userrev = userrev)
 
 
 @app.route("/user/<username>", methods=["GET"])
